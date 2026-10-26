@@ -28,7 +28,7 @@ function se(over: Partial<ShimEnv> = {}): ShimEnv {
     platform: 'win32',
     env: {},
     execPath: 'C:\\Program Files\\WeftCut\\WeftCut.exe',
-    scriptPath: 'C:\\somewhere\\weftcut-mcp.cjs',
+    scriptPath: 'C:\\somewhere\\kxvn-mcp.cjs',
     homedir: 'C:\\Users\\u',
     ...over,
   }
@@ -43,7 +43,7 @@ describe('resolveUserDataDir', () => {
     const userData = tmpDir()
     fs.mkdirSync(path.join(userData, 'cli'))
     fs.writeFileSync(path.join(userData, 'mcp_auth.json'), '{"token":"t","port":1}')
-    const script = path.join(userData, 'cli', 'weftcut-mcp.cjs')
+    const script = path.join(userData, 'cli', 'kxvn-mcp.cjs')
     expect(resolveUserDataDir(se({ scriptPath: script }))).toBe(userData)
   })
 
@@ -102,7 +102,7 @@ describe('clientConfig', () => {
     const cfg = clientConfig(se(), 'C:\\ud')
     expect(cfg).toEqual({
       command: 'C:\\Program Files\\WeftCut\\WeftCut.exe',
-      args: ['C:\\somewhere\\weftcut-mcp.cjs'],
+      args: ['C:\\somewhere\\kxvn-mcp.cjs'],
       env: { ELECTRON_RUN_AS_NODE: '1', WEFTCUT_USERDATA: 'C:\\ud' },
     })
   })

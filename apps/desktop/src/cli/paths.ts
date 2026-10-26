@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-/// Discovery + config plumbing for the weftcut-mcp shim. Everything here is
+/// Discovery + config plumbing for the kxvn-mcp shim. Everything here is
 /// deliberately Electron-free: the shim runs under ELECTRON_RUN_AS_NODE (the
 /// app binary acting as plain Node), so `app.getPath` does not exist and the
 /// userData directory must be rediscovered from the outside.
@@ -136,7 +136,7 @@ export function bridgeTimeouts(se: ShimEnv): BridgeTimeouts {
   }
 }
 
-/// What `launch_weftcut` should spawn.
+/// What `launch_kxvn_cut` should spawn.
 ///  - WEFTCUT_APP env override first (dev: point at a packaged build or
 ///    `electron .`-style wrapper script).
 ///  - $APPIMAGE when set: execPath is the transient mount, the .AppImage file

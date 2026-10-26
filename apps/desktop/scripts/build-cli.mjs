@@ -1,4 +1,4 @@
-/// Bundle the weftcut-mcp shim into ONE self-contained file. It ships as an
+/// Bundle the kxvn-mcp shim into ONE self-contained file. It ships as an
 /// extraResource and is copied to <userData>/cli/ at app startup, then runs
 /// under ELECTRON_RUN_AS_NODE (the app binary as plain Node) on user machines
 /// that have no Node install — so everything, SDK included, must be inlined.
@@ -16,7 +16,7 @@ const { version } = JSON.parse(await readFile(path.join(HERE, '..', 'package.jso
 
 await build({
   entryPoints: [path.join(HERE, '..', 'src', 'cli', 'main.ts')],
-  outfile: path.join(HERE, '..', 'out', 'cli', 'weftcut-mcp.cjs'),
+  outfile: path.join(HERE, '..', 'out', 'cli', 'kxvn-mcp.cjs'),
   bundle: true,
   platform: 'node',
   target: 'node22',

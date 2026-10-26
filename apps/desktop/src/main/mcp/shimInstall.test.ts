@@ -18,30 +18,30 @@ describe('installShim', () => {
   it('copies the packaged shim into <userData>/cli and returns the copy path', () => {
     const res = tmpDir()
     const userData = tmpDir()
-    const source = path.join(res, 'weftcut-mcp.cjs')
+    const source = path.join(res, 'kxvn-mcp.cjs')
     fs.writeFileSync(source, '// shim v1')
     const dest = installShim({ resourcesShim: source, devShim: 'X:\\nope', isPackaged: true, userDataDir: userData })
-    expect(dest).toBe(path.join(userData, 'cli', 'weftcut-mcp.cjs'))
+    expect(dest).toBe(path.join(userData, 'cli', 'kxvn-mcp.cjs'))
     expect(fs.readFileSync(dest!, 'utf8')).toBe('// shim v1')
   })
 
   it('refreshes an existing copy on every start (never stale relative to the app)', () => {
     const res = tmpDir()
     const userData = tmpDir()
-    const source = path.join(res, 'weftcut-mcp.cjs')
+    const source = path.join(res, 'kxvn-mcp.cjs')
     const opts = { resourcesShim: source, devShim: 'X:\\nope', isPackaged: true, userDataDir: userData }
     fs.writeFileSync(source, '// shim v1')
     installShim(opts)
     fs.writeFileSync(source, '// shim v2')
     installShim(opts)
-    expect(fs.readFileSync(path.join(userData, 'cli', 'weftcut-mcp.cjs'), 'utf8')).toBe('// shim v2')
+    expect(fs.readFileSync(path.join(userData, 'cli', 'kxvn-mcp.cjs'), 'utf8')).toBe('// shim v2')
   })
 
   it('dev without a built bundle: keeps a pre-existing copy, else reports none', () => {
     const userData = tmpDir()
     const opts = { resourcesShim: 'X:\\nope', devShim: 'X:\\also-nope', isPackaged: false, userDataDir: userData }
     expect(installShim(opts)).toBeNull()
-    const dest = path.join(userData, 'cli', 'weftcut-mcp.cjs')
+    const dest = path.join(userData, 'cli', 'kxvn-mcp.cjs')
     fs.mkdirSync(path.dirname(dest), { recursive: true })
     fs.writeFileSync(dest, '// stale copy')
     expect(installShim(opts)).toBe(dest)

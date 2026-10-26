@@ -53,7 +53,7 @@ asarUnpack:
   - "**/node_modules/@weftcut/native-decode/*.so.*"
   - "**/node_modules/@weftcut/native-decode/*.dylib"
 extraResources:
-  # The weftcut-mcp stdio shim (single self-contained bundle, built by
+  # The kxvn-mcp stdio shim (single self-contained bundle, built by
   # scripts/build-cli.mjs). The app copies it to <userData>/cli/ at startup —
   # THAT copy is what client configs reference (stable across upgrades, and
   # the only stable option on AppImage); this one is just the ride-along.

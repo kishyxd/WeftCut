@@ -44,7 +44,7 @@ import {
 
 const SYNTHETIC_TOOLS: Tool[] = [
   {
-    name: 'weftcut_status',
+    name: 'kxvn_status',
     description:
       'Report whether the KXVN Cut desktop app is currently running and reachable, and which ' +
       'project it has open. Returns the endpoint state and what to do next when it is not running. ' +
@@ -52,13 +52,13 @@ const SYNTHETIC_TOOLS: Tool[] = [
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
-    name: 'launch_weftcut',
+    name: 'launch_kxvn_cut',
     description:
       'Launch the KXVN Cut desktop app (opens its GUI window on the user’s machine) and ' +
       'wait until its MCP endpoint is reachable. On success the full KXVN Cut tool catalog ' +
       'becomes available in this session automatically (tools/list_changed). Safe to call ' +
       'when already running — reports that instead of launching twice. Use after ' +
-      'weftcut_status says the app is not running.',
+      'kxvn_status says the app is not running.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 ]
@@ -111,7 +111,7 @@ export interface ShimOptions {
   se: ShimEnv
   userDataDir: string
   /** What `initialize` reports as the shim's own version — distinct from the
-   *  app's, which rides the bridge and is reported by `weftcut_status`.
+   *  app's, which rides the bridge and is reported by `kxvn_status`.
    *  `main.ts` passes the build stamp; absent reports `0.0.0-dev`. */
   version?: string
   /// Test seams. Defaults: read mcp_auth.json / streamable HTTP / detached spawn.
@@ -148,7 +148,7 @@ export function createShim(opts: ShimOptions): Shim {
   const launchPollMs = opts.launchPollMs ?? 1_000
 
   const server = new Server(
-    { name: 'weftcut-mcp', version: opts.version ?? '0.0.0-dev' },
+    { name: 'kxvn-mcp', version: opts.version ?? '0.0.0-dev' },
     {
       capabilities: {
         tools: { listChanged: true },
@@ -195,13 +195,13 @@ export function createShim(opts: ShimOptions): Shim {
       return new McpError(
         ErrorCode.InternalError,
         `KXVN Cut has never been launched on this machine (no mcp_auth.json under ${userDataDir}). ` +
-          'Ask the user to open KXVN Cut once so it creates its MCP endpoint, then call weftcut_status.',
+          'Ask the user to open KXVN Cut once so it creates its MCP endpoint, then call kxvn_status.',
       )
     }
     return new McpError(
       ErrorCode.InternalError,
       `KXVN Cut is not running (nothing answering at ${endpointUrl(auth)}). ` +
-        'Call the launch_weftcut tool to start it, or ask the user to open KXVN Cut; ' +
+        'Call the launch_kxvn_cut tool to start it, or ask the user to open KXVN Cut; ' +
         'the full tool catalog appears in this session automatically once the app is up.',
     )
   }
@@ -214,7 +214,7 @@ export function createShim(opts: ShimOptions): Shim {
     if (e.method !== 'tools/call') {
       return (
         `KXVN Cut is running, but did not answer ${e.method} within ${duration(e.timeoutMs)}. ` +
-        'Retry the request; call weftcut_status if it keeps happening.'
+        'Retry the request; call kxvn_status if it keeps happening.'
       )
     }
     const waited = e.total
@@ -273,14 +273,14 @@ export function createShim(opts: ShimOptions): Shim {
         [
           'KXVN Cut is not running, and has never been launched on this machine ' +
             `(no mcp_auth.json under ${userDataDir}).`,
-          'Ask the user to open KXVN Cut once so it creates its MCP endpoint, then call weftcut_status again.',
+          'Ask the user to open KXVN Cut once so it creates its MCP endpoint, then call kxvn_status again.',
         ].join('\n'),
       )
     }
     return text(
       [
         `KXVN Cut is not running (nothing answering at ${endpointUrl(auth)}).`,
-        'Call launch_weftcut to start it, or ask the user to open KXVN Cut. ' +
+        'Call launch_kxvn_cut to start it, or ask the user to open KXVN Cut. ' +
           'The full tool catalog appears automatically once the app is up.',
       ].join('\n'),
     )
@@ -316,7 +316,7 @@ export function createShim(opts: ShimOptions): Shim {
     }
     return text(
       `KXVN Cut was launched (${target.path}) but its MCP endpoint did not come up within ` +
-        `${Math.round(launchTimeoutMs / 1000)}s. The app may still be starting — call weftcut_status to re-check.`,
+        `${Math.round(launchTimeoutMs / 1000)}s. The app may still be starting — call kxvn_status to re-check.`,
       true,
     )
   }
@@ -341,8 +341,8 @@ export function createShim(opts: ShimOptions): Shim {
 
   server.setRequestHandler(CallToolRequestSchema, async (req, extra) => {
     const name = req.params.name
-    if (name === 'weftcut_status') return statusResult()
-    if (name === 'launch_weftcut') return launchResult()
+    if (name === 'kxvn_status') return statusResult()
+    if (name === 'launch_kxvn_cut') return launchResult()
     await bridge.ensureUp()
     try {
       return await bridge.forward('tools/call', req.params, CallToolResultSchema, upstream(req, extra, closed))

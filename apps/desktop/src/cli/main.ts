@@ -20,21 +20,21 @@ import {
 declare const __WEFTCUT_VERSION__: string | undefined
 const SHIM_VERSION = typeof __WEFTCUT_VERSION__ === 'string' ? __WEFTCUT_VERSION__ : '0.0.0-dev'
 
-/// weftcut-mcp — the KXVN Cut MCP connection shim.
+/// kxvn-mcp — the KXVN Cut MCP connection shim.
 ///
 /// Default mode (no args) is an MCP server on stdio that bridges to the
 /// running app's streamable-HTTP endpoint; the subcommands are the
 /// terminal-facing connection helpers. Exit codes: 0 ok, 2 usage, 3 the app
 /// is not reachable (info / list-tools).
 
-const HELP = `weftcut-mcp — KXVN Cut MCP connection shim
+const HELP = `kxvn-mcp — KXVN Cut MCP connection shim
 
 usage:
-  weftcut-mcp                 MCP server on stdio (what client configs run)
-  weftcut-mcp info            print endpoint, token, and whether the app is running
-  weftcut-mcp print-config    print the mcpServers config fragment for MCP clients
-  weftcut-mcp list-tools      connect to the running app and list its MCP tools
-  weftcut-mcp help            this text
+  kxvn-mcp                 MCP server on stdio (what client configs run)
+  kxvn-mcp info            print endpoint, token, and whether the app is running
+  kxvn-mcp print-config    print the mcpServers config fragment for MCP clients
+  kxvn-mcp list-tools      connect to the running app and list its MCP tools
+  kxvn-mcp help            this text
 
 The app's endpoint + bearer token are read from <userData>/mcp_auth.json at
 every connect, so configs stay valid across app restarts, port changes, and

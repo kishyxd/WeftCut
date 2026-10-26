@@ -3,7 +3,7 @@
 // the bridge connects to a fake "app" MCP server over another. Covers the
 // spec's core claims — catalog = synthetic ∪ (app alive ? real : ∅),
 // list_changed on BOTH transitions, actionable down-state errors, and the
-// launch_weftcut close-the-loop flow.
+// launch_kxvn_cut close-the-loop flow.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
@@ -25,7 +25,7 @@ const SE: ShimEnv = {
   platform: 'win32',
   env: {},
   execPath: 'C:\\Program Files\\WeftCut\\WeftCut.exe',
-  scriptPath: 'C:\\ud\\cli\\weftcut-mcp.cjs',
+  scriptPath: 'C:\\ud\\cli\\kxvn-mcp.cjs',
   homedir: 'C:\\Users\\u',
 }
 const AUTH: McpAuth = { token: 'tok', port: 4711 }
@@ -168,12 +168,12 @@ describe('down state', () => {
   it('lists exactly the synthetic tools, and empty resources/prompts', async () => {
     open = await harness({ appUp: false })
     const tools = await open.client.listTools()
-    expect(tools.tools.map((t) => t.name)).toEqual(['weftcut_status', 'launch_weftcut'])
+    expect(tools.tools.map((t) => t.name)).toEqual(['kxvn_status', 'launch_kxvn_cut'])
     expect((await open.client.listResources()).resources).toEqual([])
     expect((await open.client.listPrompts()).prompts).toEqual([])
   })
 
-  it('a real tool call fails with an actionable message naming the endpoint and launch_weftcut', async () => {
+  it('a real tool call fails with an actionable message naming the endpoint and launch_kxvn_cut', async () => {
     open = await harness({ appUp: false })
     const err = await open.client
       .callTool({ name: 'add_marker', arguments: {} })
@@ -182,7 +182,7 @@ describe('down state', () => {
     expect(err).toBeInstanceOf(McpError)
     const msg = (err as McpError).message
     expect(msg).toContain('http://127.0.0.1:4711/mcp')
-    expect(msg).toContain('launch_weftcut')
+    expect(msg).toContain('launch_kxvn_cut')
   })
 
   it('with no auth file the error says the app has never been launched', async () => {
@@ -192,16 +192,16 @@ describe('down state', () => {
       .then(() => null)
       .catch((e: unknown) => e)
     expect((err as McpError).message).toContain('never been launched')
-    const status = await open.client.callTool({ name: 'weftcut_status', arguments: {} })
+    const status = await open.client.callTool({ name: 'kxvn_status', arguments: {} })
     expect(JSON.stringify(status.content)).toContain('never been launched')
   })
 
-  it('weftcut_status reports not-running with next steps', async () => {
+  it('kxvn_status reports not-running with next steps', async () => {
     open = await harness({ appUp: false })
-    const status = await open.client.callTool({ name: 'weftcut_status', arguments: {} })
+    const status = await open.client.callTool({ name: 'kxvn_status', arguments: {} })
     const text = JSON.stringify(status.content)
     expect(text).toContain('not running')
-    expect(text).toContain('launch_weftcut')
+    expect(text).toContain('launch_kxvn_cut')
   })
 })
 
@@ -209,7 +209,7 @@ describe('up state', () => {
   it('lists synthetic ∪ real and passes tool calls through', async () => {
     open = await harness({ appUp: true })
     const tools = await open.client.listTools()
-    expect(tools.tools.map((t) => t.name)).toEqual(['weftcut_status', 'launch_weftcut', 'add_marker'])
+    expect(tools.tools.map((t) => t.name)).toEqual(['kxvn_status', 'launch_kxvn_cut', 'add_marker'])
     const result = await open.client.callTool({ name: 'add_marker', arguments: { t_us: 1 } })
     expect(JSON.stringify(result.content)).toContain('called:add_marker')
     expect((await open.client.listResources()).resources).toHaveLength(1)
@@ -227,19 +227,19 @@ describe('up state', () => {
     expect(open.notified).toContain('notifications/weftcut/change')
   })
 
-  it('weftcut_status reports running', async () => {
+  it('kxvn_status reports running', async () => {
     open = await harness({ appUp: true })
-    const status = await open.client.callTool({ name: 'weftcut_status', arguments: {} })
+    const status = await open.client.callTool({ name: 'kxvn_status', arguments: {} })
     expect(JSON.stringify(status.content)).toContain('WeftCut is running')
   })
 
-  it('weftcut_status names the open project, or says none is open', async () => {
+  it('kxvn_status names the open project, or says none is open', async () => {
     appSession = { project: { name: 'Demo', dir: '/p/Demo' } }
     open = await harness({ appUp: true })
-    const named = await open.client.callTool({ name: 'weftcut_status', arguments: {} }) as { content: Array<{ text: string }> }
+    const named = await open.client.callTool({ name: 'kxvn_status', arguments: {} }) as { content: Array<{ text: string }> }
     expect(named.content[0].text).toContain('Project: Demo (/p/Demo)')
     appSession = { project: null }
-    const none = await open.client.callTool({ name: 'weftcut_status', arguments: {} }) as { content: Array<{ text: string }> }
+    const none = await open.client.callTool({ name: 'kxvn_status', arguments: {} }) as { content: Array<{ text: string }> }
     expect(none.content[0].text).toContain('Project: none open')
     expect(none.content[0].text).toContain('open_project')
   })
@@ -254,7 +254,7 @@ describe('transitions', () => {
     await settle()
     expect(open.notified).toContain('notifications/tools/list_changed')
     const tools = await open.client.listTools()
-    expect(tools.tools.map((t) => t.name)).toEqual(['weftcut_status', 'launch_weftcut'])
+    expect(tools.tools.map((t) => t.name)).toEqual(['kxvn_status', 'launch_kxvn_cut'])
   })
 
   it('app comes up mid-session → next list upgrades and list_changed fires', async () => {
@@ -268,7 +268,7 @@ describe('transitions', () => {
     expect(open.notified).toContain('notifications/tools/list_changed')
   })
 
-  it('launch_weftcut spawns the app, waits for the endpoint, and closes the loop', async () => {
+  it('launch_kxvn_cut spawns the app, waits for the endpoint, and closes the loop', async () => {
     let spawned: string | null = null
     open = await harness({
       appUp: false,
@@ -277,26 +277,26 @@ describe('transitions', () => {
         open!.setAppUp(true) // "the app came up"
       },
     })
-    const result = await open.client.callTool({ name: 'launch_weftcut', arguments: {} })
+    const result = await open.client.callTool({ name: 'launch_kxvn_cut', arguments: {} })
     expect(spawned).toBe(SE.execPath)
     expect(result.isError).toBeUndefined()
     expect(JSON.stringify(result.content)).toContain('now available')
     expect((await open.client.listTools()).tools.map((t) => t.name)).toContain('add_marker')
   })
 
-  it('launch_weftcut reports a bounded timeout when the endpoint never appears', async () => {
+  it('launch_kxvn_cut reports a bounded timeout when the endpoint never appears', async () => {
     let spawned = false
     open = await harness({ appUp: false, spawnApp: () => (spawned = true), launchTimeoutMs: 80 })
-    const result = await open.client.callTool({ name: 'launch_weftcut', arguments: {} })
+    const result = await open.client.callTool({ name: 'launch_kxvn_cut', arguments: {} })
     expect(spawned).toBe(true)
     expect(result.isError).toBe(true)
     expect(JSON.stringify(result.content)).toContain('did not come up')
   })
 
-  it('launch_weftcut on an already-running app is a no-op report', async () => {
+  it('launch_kxvn_cut on an already-running app is a no-op report', async () => {
     let spawned = false
     open = await harness({ appUp: true, spawnApp: () => (spawned = true) })
-    const result = await open.client.callTool({ name: 'launch_weftcut', arguments: {} })
+    const result = await open.client.callTool({ name: 'launch_kxvn_cut', arguments: {} })
     expect(spawned).toBe(false)
     expect(JSON.stringify(result.content)).toContain('already running')
   })
@@ -351,7 +351,7 @@ describe('the app session carries the driving client name, not the shim', () => 
     })
     // The poll loop's start-up connect: nobody has named themselves yet.
     expect(await shim.bridge.ensureUp()).toBe('up')
-    expect(apps[0].getClientVersion()?.name).toBe('weftcut-mcp')
+    expect(apps[0].getClientVersion()?.name).toBe('kxvn-mcp')
     const client = new Client({ name: 'claude-code', version: '1' }, { capabilities: {} })
     const [clientT, serverT] = InMemoryTransport.createLinkedPair()
     await shim.server.connect(serverT)
@@ -392,7 +392,7 @@ describe('the app session carries the driving client name, not the shim', () => 
     release()
     await polling
     await settle()
-    expect(apps[0].getClientVersion()?.name).toBe('weftcut-mcp')
+    expect(apps[0].getClientVersion()?.name).toBe('kxvn-mcp')
     expect(apps.at(-1)!.getClientVersion()?.name).toBe('claude-code')
     expect(shim.bridge.isUp()).toBe(true)
     await client.close().catch(() => {})

@@ -1178,8 +1178,8 @@ app.whenReady().then(async () => {
   // closed). See docs/mcp.md.
   const { installShim, stdioConnectConfig } = await import('./mcp/shimInstall.js')
   const shimPath = installShim({
-    resourcesShim: path.join(process.resourcesPath, 'cli', 'weftcut-mcp.cjs'),
-    devShim: path.join(import.meta.dirname, '../cli/weftcut-mcp.cjs'),
+    resourcesShim: path.join(process.resourcesPath, 'cli', 'kxvn-mcp.cjs'),
+    devShim: path.join(import.meta.dirname, '../cli/kxvn-mcp.cjs'),
     isPackaged: app.isPackaged,
     userDataDir: app.getPath('userData'),
   })

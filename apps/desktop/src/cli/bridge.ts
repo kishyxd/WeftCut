@@ -48,7 +48,7 @@ export interface ForwardOptions {
 
 /// What the shim calls itself upstream until the downstream client has named
 /// itself.
-const SHIM_CLIENT_NAME = 'weftcut-mcp'
+const SHIM_CLIENT_NAME = 'kxvn-mcp'
 
 /// Close a client AND its app-side session (the DELETE), best-effort.
 async function endSession(c: Client): Promise<void> {

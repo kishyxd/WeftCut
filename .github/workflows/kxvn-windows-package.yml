@@ -1,58 +1,116 @@
 name: kxvn-windows-package
 
-# The KXVN Cut build. Same toolchain and same composite action the upstream
-# CI uses, minus the e2e suite, the nightly matrix, the cargo test job and
-# the GitHub release publisher (which is locked to the upstream repo anyway).
-# One job, one artifact: the Windows x64 NSIS installer.
+# Windows x64 NSIS installer for the rebranded KXVN Cut.
+#
+# Every step below is extracted from .github/workflows/electron-ci.yml (the
+# e2e job's "Package (unsigned)" leg) and narrowed to what a Windows
+# installer actually needs:
+#
+#   UPSTREAM STEP                        KEPT HERE
+#   ──────────────────────────────────── ────────────────────────────────
+#   checkout / setup-node / npm ci       yes, unchanged
+#   electron:install + .cache/electron   yes, same cache key + path
+#   ffmpeg:fetch + resources/ffmpeg      yes, same cache key + path
+#   ffmpeg:fetch-lgpl + ffmpeg-lgpl      yes, same cache key + path
+#   rust toolchain + cargo cache         yes, same pins
+#   npm run build:wasm                   yes
+#   npm run napi:build                   yes
+#   npm run napi:build:decode            yes
+#   npm run build                        yes
+#   npx electron-builder --publish never yes, unsigned
+#   typecheck / e2e / fixtures / compare NO (not a test workflow)
+#   release job                          NO (locked to WeftCut/WeftCut upstream)
+#
+# Two upstream steps are DROPPED on purpose:
+#   · The e2e suite, the fixture matrix, the determinism capture and the
+#     cross-OS compare — this workflow only builds and packages.
+#   · The `release` job — it is locked to `github.repository ==
+#     'WeftCut/WeftCut'` and would never run on this fork. The installer is
+#     published here as a workflow artifact instead.
+#
+# The pack-time gates in scripts/after-pack.mjs (ffmpeg licensing compliance
+# + the agent skill bundle) still run — electron-builder invokes them — so a
+# build that would ship without its compliance material or skills still fails
+# here, exactly as it does upstream.
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Also attach the installer to a DRAFT GitHub release in this repo'
+        type: boolean
+        default: false
   push:
     branches: [kxvn-rebrand]
-    paths:
-      - 'apps/desktop/**'
-      - '.github/actions/rust-artifacts/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.nvmrc'
-      - 'rust-toolchain.toml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: kxvn-windows-${{ github.ref }}
+  group: kxvn-windows-package-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   package:
     name: KXVN Cut - the Windows x64 installer
     runs-on: windows-latest
-    # The Rust addon builds in release mode: a cold build of the whole
-    # workspace is the long pole (15-25 min), the rest is minutes.
-    timeout-minutes: 75
+    # `contents: write` is needed only by the optional draft-release step at
+    # the end, and that step is off by default. The workflow's own token is
+    # never used to push to the repository, and electron-builder runs with
+    # --publish never, so nothing here can reach a release on its own.
+    # (Job level, because `permissions` is not a valid step-level key, and a
+    # literal only — GitHub does not accept an expression in this value.)
+    permissions:
+      contents: write
+    # The release-mode Rust addon build is the long pole (a cold build of the
+    # whole native workspace plus ffmpeg-next's bindgen step), and the
+    # ffmpeg/electron downloads are large. This matches upstream's e2e cap
+    # (90 min) rather than its 30-min build-only caps.
+    timeout-minutes: 90
     defaults:
       run:
+        # Same default as upstream's e2e job: every npm script below lives in
+        # apps/desktop. The root-level steps override it explicitly.
         working-directory: apps/desktop
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: '1'
+      # UNSIGNED BUILD. No certificate is available to this workflow, so make
+      # the absence explicit instead of letting electron-builder probe for
+      # one. (electron-builder.yml's mac section signs ad-hoc with identity
+      # "-" and notarize: false; this workflow never builds a mac target, and
+      # the Windows NSIS target ships unsigned either way.)
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
     steps:
       - uses: actions/checkout@v7
         with:
+          # Nothing here pushes or fetches from the remote.
           persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
+          # Resolved against the repo root, not this job's working-directory.
           node-version-file: .nvmrc
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       # npm ci at the workspace ROOT: the root package-lock.json covers all
       # workspaces including apps/desktop. Running it at apps/desktop would
-      # fail - there is no apps/desktop/package-lock.json.
+      # fail — there is no apps/desktop/package-lock.json.
+      #
+      # The repo's .npmrc sets ignore-scripts=true, so this install runs no
+      # lifecycle scripts at all — which is why the electron download below is
+      # an explicit step.
       - name: Install dependencies
-        working-directory: .
+        working-directory: ${{ github.workspace }}
         run: npm ci
 
+      # ── Electron binary ───────────────────────────────────────────────────
+      # The release zip (~100 MB) is cached by @electron/get's own download
+      # cache, pointed at a workspace path via electron_config_cache so
+      # actions/cache can see it. Keyed on the pinned version, so a bump busts
+      # it. Split restore/save, as upstream does.
       - name: Read pinned Electron version
         id: electron-version
         shell: bash
@@ -77,6 +135,11 @@ jobs:
           path: .cache/electron
           key: ${{ steps.cache-electron.outputs.cache-primary-key }}
 
+      # ── ffmpeg (GPL sidecar) ──────────────────────────────────────────────
+      # electron-builder.yml ships resources/ffmpeg/<os> as extraResources and
+      # scripts/after-pack-licensing.mjs re-asserts the GPLv3 compliance
+      # material at pack time, so this fetch is load-bearing for packaging —
+      # not just for the e2e suite.
       - name: Restore ffmpeg cache
         id: cache-ffmpeg
         uses: actions/cache/restore@v6
@@ -94,6 +157,10 @@ jobs:
           path: apps/desktop/resources/ffmpeg
           key: ${{ steps.cache-ffmpeg.outputs.cache-primary-key }}
 
+      # ── ffmpeg (LGPL shared build, for @weftcut/native-decode) ───────────
+      # Same two reasons as above, plus one more: napi:build:decode reads
+      # FFMPEG_DIR from resources/ffmpeg-lgpl/win, so this fetch must land
+      # BEFORE the decode addon is compiled.
       - name: Restore ffmpeg-lgpl cache
         id: cache-ffmpeg-lgpl
         uses: actions/cache/restore@v6
@@ -111,44 +178,169 @@ jobs:
           path: apps/desktop/resources/ffmpeg-lgpl
           key: ${{ steps.cache-ffmpeg-lgpl.outputs.cache-primary-key }}
 
-      # Both napi addons, the conformance analyzer bin and the generated eval
-      # wasm - restored from a cache keyed on the Rust sources, or built here
-      # and saved. Must stay AFTER the LGPL fetch: the decode addon's build
-      # reads FFMPEG_DIR from resources/ffmpeg-lgpl/<os>.
-      - uses: ./.github/actions/rust-artifacts
+      # Put the bundled ffmpeg on PATH. Upstream's e2e job does this before
+      # the catalog check because the core addon shells out to the sidecar;
+      # the same is true here, where the snapshot script loads the addon.
+      # (CI runners have no system ffmpeg; ffmpeg:fetch put it in resources/.)
+      - name: Put bundled ffmpeg on PATH
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cygpath -w "$PWD/resources/ffmpeg/win" >> "$GITHUB_PATH"
+          elif [ "$RUNNER_OS" = "Linux" ]; then
+            echo "$PWD/resources/ffmpeg/linux" >> "$GITHUB_PATH"
+          else
+            echo "$PWD/resources/ffmpeg/mac" >> "$GITHUB_PATH"
+          fi
 
+      # Put the LGPL DLLs on PATH (native-decode runtime). The decode addon
+      # links against these at load time on Windows.
       - name: Put LGPL DLLs on PATH (native-decode runtime)
         if: runner.os == 'Windows'
         shell: bash
         run: cygpath -w "$PWD/resources/ffmpeg-lgpl/win/bin" >> "$GITHUB_PATH"
 
-      # The rebrand changed the Rust tool descriptions, so the committed
-      # catalog snapshot is stale. `npm run build` opens with
-      # mcp:catalog:check, which regenerates the snapshot and fails the build
-      # when the result differs from what is committed. Regenerate and commit
-      # it here, so that check finds a clean tree.
+      # ── Native build outputs cache ───────────────────────────────────────
+      # The two napi addons and the generated eval wasm, keyed on the Rust
+      # sources that produce them. Restoring them skips the whole release
+      # build; a miss builds them below and publishes the set. Split
+      # restore/save so the save lands right after the build rather than in a
+      # post-step that a later red would skip.
+      #
+      # This is the fork-local equivalent of upstream's
+      # .github/actions/rust-artifacts cache, minus the conformance analyzer
+      # binary (an e2e-only input — no pack-time gate reads it) and minus the
+      # rustc-version suffix (rust-toolchain.toml already pins the compiler).
+      - name: Restore native build outputs
+        id: cache-native
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            apps/desktop/native/index.*.node
+            apps/desktop/native/index.js
+            apps/desktop/native/index.d.ts
+            apps/desktop/native/decode/index.*.node
+            apps/desktop/native/decode/index.js
+            apps/desktop/native/decode/index.d.ts
+            apps/desktop/src/renderer/eval/evalWasm.generated.ts
+          key: rustartifacts-${{ runner.os }}-${{ hashFiles('apps/desktop/native/**/*.rs', 'apps/desktop/native/**/Cargo.toml', 'apps/desktop/native/Cargo.lock', 'rust-toolchain.toml', 'apps/desktop/scripts/napi-build-decode.mjs', 'apps/desktop/scripts/fetch-ffmpeg-lgpl.mjs', 'apps/desktop/scripts/build-eval-wasm.mjs', 'apps/desktop/scripts/build-eval-wasm-lib.mjs') }}
+
+      # ── Rust toolchain ────────────────────────────────────────────────────
+      # rust-toolchain.toml pins channel 1.98.1 (profile minimal, rustfmt,
+      # wasm32-unknown-unknown). The action below installs the same version
+      # explicitly and adds the wasm32 target, which the wasm leaf needs —
+      # upstream's rust-artifacts action does the same and warns that the
+      # toolchain-file auto-detection is not reliable enough to trust.
+      # Third-party actions stay pinned to immutable commit SHAs (upstream's
+      # supply-chain hardening); bump deliberately, in lockstep with upstream.
+      - name: Install the Rust toolchain
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable branch
+        with:
+          toolchain: '1.98.1'
+          targets: wasm32-unknown-unknown
+
+      # The COMPILATION cache (~537 MB on Windows) — restored only when
+      # something is about to compile: a hit already holds the outputs those
+      # compilations would produce, so it skips the restore along with cargo.
+      - name: Restore the cargo compilation cache
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: apps/desktop/native
+
+      # ── Native builds (the long pole) ────────────────────────────────────
+      # Same order as upstream's rust-artifacts action:
+      #   1. the wasm leaf (the renderer's eval/conversion modules),
+      #   2. the @weftcut/core napi addon,
+      #   3. the @weftcut/native-decode napi addon. It needs FFMPEG_DIR,
+      #      which napi-build-decode.mjs defaults to
+      #      resources/ffmpeg-lgpl/win (fetched above), and LIBCLANG_PATH,
+      #      which it defaults to C:\Program Files\LLVM\bin on Windows —
+      #      present on the runner image.
+      - name: Build the eval wasm leaf
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        shell: bash
+        run: npm run build:wasm
+
+      - name: Build the napi addon
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        shell: bash
+        run: npm run napi:build
+
+      - name: Build the native-decode addon
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        shell: bash
+        run: npm run napi:build:decode
+
+      - name: Save native build outputs
+        if: steps.cache-native.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            apps/desktop/native/index.*.node
+            apps/desktop/native/index.js
+            apps/desktop/native/index.d.ts
+            apps/desktop/native/decode/index.*.node
+            apps/desktop/native/decode/index.js
+            apps/desktop/native/decode/index.d.ts
+            apps/desktop/src/renderer/eval/evalWasm.generated.ts
+          key: ${{ steps.cache-native.outputs.cache-primary-key }}
+
+      # `npm run build` chains build:wasm again; this flag makes that call
+      # reuse the module built (or restored) above instead of invoking cargo
+      # a second time. The file exists in both branches, which
+      # build-eval-wasm-lib.mjs requires — it errors rather than silently
+      # rebuilding when the flag is set but the module is missing.
+      - name: Reuse the generated eval wasm
+        shell: bash
+        run: echo "WEFTCUT_EVAL_WASM_PREBUILT=1" >> "$GITHUB_ENV"
+
+      # ── MCP catalog snapshot ─────────────────────────────────────────────
+      # `npm run build` opens with mcp:catalog:check, which regenerates
+      # apps/desktop/fixtures/mcp/rust-catalog-snapshot.json from the freshly
+      # built addon and then asserts `git diff --exit-code` on it. The
+      # rebrand changed the Rust tool descriptions ("WeftCut" -> "KXVN Cut"),
+      # so the committed snapshot is stale and that gate would red the build.
+      #
+      # Regenerate it here and stage it, so the gate compares against the
+      # regenerated content. `git add` is what matters: mcp:catalog:check
+      # diffs the WORKING TREE against the INDEX, and staging the file makes
+      # the two agree. (A commit is not needed, and is not made — this
+      # workflow never writes to the repository.)
+      #
+      # The path is relative to this step's working-directory (apps/desktop),
+      # and the script is idempotent: the snapshot carries no timestamp, so
+      # regenerating it twice produces identical bytes.
       - name: Refresh the MCP catalog snapshot
         shell: bash
         run: |
           node scripts/snapshot-mcp-catalog.mjs
-          cd "$GITHUB_WORKSPACE"
-          git -c user.name='KXVN Cut CI' -c user.email='ci@kxvn.io' \
-            add -f apps/desktop/fixtures/mcp/rust-catalog-snapshot.json
-          git -c user.name='KXVN Cut CI' -c user.email='ci@kxvn.io' \
-            commit -q -m 'chore: refresh the MCP catalog snapshot' || true
-          git --no-pager diff --stat HEAD -- apps/desktop/fixtures/mcp/rust-catalog-snapshot.json
+          git add fixtures/mcp/rust-catalog-snapshot.json
 
-      - name: Typecheck (tsc -b)
-        run: npm run typecheck
-
+      # ── App bundle + packaging ───────────────────────────────────────────
+      # `build` = mcp:catalog:check + build:wasm + electron-vite build +
+      # build:cli + build:skills. It is the plain (non-E2E) bundle: no
+      # VITE_WEFTCUT_E2E=1, so the shipped app carries no test hooks.
       - name: Build the app
         run: npm run build
 
-      - name: Package (unsigned)
-        run: npx electron-builder --publish never
+      # Certificate-free packaging, as upstream's "Package (unsigned)" step:
+      # `npm run build && npx electron-builder --publish never`.
+      # Deliberately NOT `npm run package` — that script re-runs napi:build
+      # and napi:build:decode for a one-shot local package, and both addons
+      # are already built above.
+      # --publish never: electron-builder.yml names a github publish provider
+      # and this workflow must not touch a release.
+      # --win nsis --x64: the same single target the config's win block
+      # selects, stated explicitly so the build cannot widen.
+      - name: Package (unsigned NSIS)
+        shell: bash
+        run: npx electron-builder --publish never --win nsis --x64
 
       - name: Upload the installer
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: kxvn-cut-windows-x64
           retention-days: 30
@@ -157,3 +349,33 @@ jobs:
             apps/desktop/release/*.exe
             apps/desktop/release/*.blockmap
             apps/desktop/release/latest*.yml
+
+      # Optional: a DRAFT release in THIS repository, for handing the
+      # installer to a couple of people. Off by default — the artifact above
+      # is the normal deliverable. Upstream's release.mjs cannot be used
+      # here: it pins the full multi-OS asset set (AppImage, deb, dmg) and
+      # would reject a Windows-only directory.
+      - name: Publish a draft release (optional)
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          tag="v${version}"
+          assets=()
+          for f in apps/desktop/release/*.exe apps/desktop/release/*.blockmap apps/desktop/release/latest*.yml; do
+            if [ -e "$f" ]; then assets+=("$f"); fi
+          done
+          if [ ${#assets[@]} -eq 0 ]; then
+            echo "no release assets found in apps/desktop/release" >&2
+            exit 1
+          fi
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$tag" "${assets[@]}" --repo "$GITHUB_REPOSITORY" \
+              --title "KXVN Cut ${version} (unsigned, Windows x64)" \
+              --notes "Internal unsigned Windows x64 installer. Not code-signed." \
+              --draft
+          fi
