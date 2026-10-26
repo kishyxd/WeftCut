@@ -313,11 +313,20 @@ jobs:
       # The path is relative to this step's working-directory (apps/desktop),
       # and the script is idempotent: the snapshot carries no timestamp, so
       # regenerating it twice produces identical bytes.
-      - name: Refresh the MCP catalog snapshot
+      - name: Verify the MCP catalog snapshot
         shell: bash
         run: |
+          # The rebrand changed two Rust tool descriptions, so the committed
+          # fixture had to change with them. This regenerates it from the
+          # freshly built addon and FAILS if the committed copy differs - the
+          # same guarantee `mcp:catalog:check` gives, proved here before the
+          # long packaging step rather than after it.
           node scripts/snapshot-mcp-catalog.mjs
-          git add fixtures/mcp/rust-catalog-snapshot.json
+          if ! git diff --exit-code -- fixtures/mcp/rust-catalog-snapshot.json; then
+            echo "the committed MCP catalog snapshot is stale - see the diff above" >&2
+            exit 1
+          fi
+          echo "the MCP catalog snapshot matches the Rust source"
 
       # ── App bundle + packaging ───────────────────────────────────────────
       # `build` = mcp:catalog:check + build:wasm + electron-vite build +
