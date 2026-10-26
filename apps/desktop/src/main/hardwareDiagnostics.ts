@@ -33,7 +33,7 @@ export function createLinuxHardwareDiagnostics(ffmpeg: string) {
         if (closed) throw failure('probe-failed');
         const result = await new Promise<HardwareAccelerationDiagnostics>((resolve, reject) => {
           const child = utilityProcess.fork(path.join(import.meta.dirname, 'hardwareProbe.js'), [], {
-            stdio: 'ignore', serviceName: 'WeftCut hardware diagnostics',
+            stdio: 'ignore', serviceName: 'KXVN Cut hardware diagnostics',
           });
           running = child;
           let grouped = false;

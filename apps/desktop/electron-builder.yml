@@ -1,17 +1,17 @@
-appId: dev.weftcut.desktop
-productName: WeftCut
-executableName: WeftCut
+appId: io.kxvn.cut
+productName: KXVN Cut
+executableName: KXVCut
 # OS + arch, no version: GitHub's releases/latest/download/<asset> URL then always
 # resolves to the current build, so a download page never embeds a version. An
 # exact build stays addressable through its tag (releases/download/v<version>/
 # <asset>), and electron-updater derives the previous blockmap URL by swapping the
 # version inside that tag segment, so differential Windows updates still work.
-# Expands to WeftCut-win-x64.exe, WeftCut-linux-x86_64.AppImage,
-# WeftCut-linux-amd64.deb and WeftCut-mac-arm64.dmg; release.mjs pins that set.
-artifactName: ${productName}-${os}-${arch}.${ext}
+# Expands to KXVCut-win-x64.exe, KXVCut-linux-x86_64.AppImage,
+# KXVCut-linux-amd64.deb and KXVCut-mac-arm64.dmg; release.mjs pins that set.
+artifactName: KXVCut-${os}-${arch}.${ext}
 publish:
   provider: github
-  owner: WeftCut
+  owner: kishyxd
   repo: WeftCut
   releaseType: release
 # Pack-time gates, re-asserted from the packaged files rather than from what the

@@ -35,7 +35,7 @@ export function shimEnvFromProcess(): ShimEnv {
 /// Last-resort userData guess. Generated configs always carry an explicit
 /// WEFTCUT_USERDATA and the installed shim finds userData as its own
 /// grandparent, so this only serves a hand-invoked shim. Electron derives the
-/// dir from the app name, which is package.json's `productName` ("WeftCut") in
+/// dir from the app name, which is package.json's `productName` ("KXVN Cut") in
 /// dev AND packaged: electron-builder's own productName never reaches the
 /// packaged package.json, so the two modes agree only because the key is set
 /// there. The scoped-name candidate stays for profiles written before it was.
@@ -46,7 +46,7 @@ export function defaultUserDataDir(se: ShimEnv): string {
       : se.platform === 'darwin'
         ? path.join(se.homedir, 'Library', 'Application Support')
         : (se.env.XDG_CONFIG_HOME ?? path.join(se.homedir, '.config'))
-  const candidates = [path.join(appData, 'WeftCut'), path.join(appData, '@weftcut', 'desktop')]
+  const candidates = [path.join(appData, 'KXVN Cut'), path.join(appData, 'WeftCut'), path.join(appData, '@weftcut', 'desktop')]
   for (const c of candidates) {
     if (fs.existsSync(path.join(c, 'mcp_auth.json'))) return c
   }
@@ -177,5 +177,5 @@ export function clientConfig(
 }
 
 export function clientConfigJson(se: ShimEnv, userDataDir: string): string {
-  return JSON.stringify({ mcpServers: { weftcut: clientConfig(se, userDataDir) } }, null, 2)
+  return JSON.stringify({ mcpServers: { kxvn: clientConfig(se, userDataDir) } }, null, 2)
 }

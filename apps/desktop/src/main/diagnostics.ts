@@ -89,7 +89,7 @@ export function startDiagnostics(): void {
     checkSender(e)
     return {
       available: store?.available ?? false,
-      environment: `WeftCut ${version} (${String(environment.commit).slice(0, 12)}) | Electron ${process.versions.electron} | ${process.platform} ${process.arch} ${os.release()} | ${environment.logicalCores} cores | ${environment.totalMemoryMiB} MiB RAM`,
+      environment: `KXVN Cut ${version} (${String(environment.commit).slice(0, 12)}) | Electron ${process.versions.electron} | ${process.platform} ${process.arch} ${os.release()} | ${environment.logicalCores} cores | ${environment.totalMemoryMiB} MiB RAM`,
       previousSession: dismissed ? null : store?.previous ?? null,
     } satisfies DiagnosticSummary
   })
@@ -111,7 +111,7 @@ export function startDiagnostics(): void {
     try {
       const win = BrowserWindow.fromWebContents(e.sender)!
       const result = await dialog.showSaveDialog(win, {
-        defaultPath: `WeftCut-diagnostics-${new Date().toISOString().replace(/[:.]/g, '-')}.zip`,
+        defaultPath: `KXVN-Cut-diagnostics-${new Date().toISOString().replace(/[:.]/g, '-')}.zip`,
         filters: [{ name: 'ZIP', extensions: ['zip'] }],
       })
       if (result.canceled || !result.filePath) return null

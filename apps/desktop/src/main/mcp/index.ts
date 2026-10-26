@@ -281,7 +281,7 @@ export async function startMcpHost(backend: Backend, opts: McpHostOptions = {}):
   if (!app.isPackaged) {
     console.log(
       `[mcp] connect: ${JSON.stringify({
-        mcpServers: { weftcut: { url, headers: { Authorization: `Bearer ${auth.token}` } } },
+        mcpServers: { kxvn: { url, headers: { Authorization: `Bearer ${auth.token}` } } },
       })}`,
     )
   }

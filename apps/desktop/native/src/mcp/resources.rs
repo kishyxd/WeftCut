@@ -549,7 +549,7 @@ const STATIC_RESOURCES: &[ResourceDescriptor] = &[
     ResourceDescriptor {
         uri: URI_PROJECT,
         name: "Current project",
-        description: "The full open WeftCut project as JSON. Re-fetch after change events.",
+        description: "The full open KXVN Cut project as JSON. Re-fetch after change events.",
     },
     ResourceDescriptor {
         uri: URI_COMPOSITION,

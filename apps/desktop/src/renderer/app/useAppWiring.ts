@@ -215,7 +215,7 @@ export function useWindowTitle(projectName: string | null | undefined): void {
   }, [projectName, i18n.resolvedLanguage, t]);
   useEffect(() => {
     return () => {
-      void getCurrentWindow().setTitle("WeftCut").catch(() => {});
+      void getCurrentWindow().setTitle("KXVN Cut").catch(() => {});
     };
   }, []);
 }

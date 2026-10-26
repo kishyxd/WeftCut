@@ -49,8 +49,8 @@ export function AboutDialog({ onClose }: AboutDialogProps) {
 
   const copyVersionInfo = () => {
     const info = versions
-      ? `WeftCut ${versions.app} | Electron ${versions.electron} | Chrome ${versions.chrome} | ${versions.platform} ${versions.arch}`
-      : "WeftCut";
+      ? `KXVN Cut ${versions.app} | Electron ${versions.electron} | Chrome ${versions.chrome} | ${versions.platform} ${versions.arch}`
+      : "KXVN Cut";
     void navigator.clipboard
       .writeText(info)
       .then(() => setCopied(true))

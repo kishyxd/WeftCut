@@ -62,9 +62,9 @@ export async function setVersion(version, root = ROOT) {
 // build), but the Linux targets keep their packaging conventions — `x86_64` for
 // AppImage and `amd64` for deb — even though both build with arch=x64.
 const INSTALLERS = {
-  'latest.yml': ['WeftCut-win-x64.exe'],
-  'latest-linux.yml': ['WeftCut-linux-x86_64.AppImage', 'WeftCut-linux-amd64.deb'],
-  'latest-mac.yml': ['WeftCut-mac-arm64.dmg'],
+  'latest.yml': ['KXVCut-win-x64.exe'],
+  'latest-linux.yml': ['KXVCut-linux-x86_64.AppImage', 'KXVCut-linux-amd64.deb'],
+  'latest-mac.yml': ['KXVCut-mac-arm64.dmg'],
 }
 
 // Refuse a partial or stale release BEFORE creating/uploading a draft. Stream
@@ -80,7 +80,7 @@ export async function validateAssets(directory, version) {
   // AppImage's own sha512/size check below covers it. Only the DMG gets a
   // blockmap file nothing consumes (macOS does not self-update).
   const required = [
-    ...Object.values(INSTALLERS).flat(), 'WeftCut-win-x64.exe.blockmap', ...Object.keys(INSTALLERS),
+    ...Object.values(INSTALLERS).flat(), 'KXVCut-win-x64.exe.blockmap', ...Object.keys(INSTALLERS),
   ]
   const names = await fs.readdir(directory)
   for (const file of required) {
@@ -88,7 +88,7 @@ export async function validateAssets(directory, version) {
       throw new Error(`Missing release asset: ${file}`)
     }
   }
-  const allowed = new Set([...required, 'WeftCut-mac-arm64.dmg.blockmap'])
+  const allowed = new Set([...required, 'KXVCut-mac-arm64.dmg.blockmap'])
   for (const name of names) {
     if (!allowed.has(name)) throw new Error(`Unexpected release asset: ${name}`)
   }

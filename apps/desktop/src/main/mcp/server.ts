@@ -911,7 +911,7 @@ export function buildMcpServer(backend: Backend, opts: McpServerOptions = {}): S
   // (`app.getVersion()` in `mcp/index.ts`); a bare `electron.exe out/main`
   // dev launch reports Electron's, since there is no package.json in that path.
   const server = new Server(
-    { name: 'weftcut', version: opts.version ?? '0.0.0-dev' },
+    { name: 'kxvn', version: opts.version ?? '0.0.0-dev' },
     { capabilities: { tools: {}, resources: {}, prompts: {} }, instructions: MCP_INSTRUCTIONS },
   )
   // One Server per session (`mcp/index.ts`), so this closure resolves to the

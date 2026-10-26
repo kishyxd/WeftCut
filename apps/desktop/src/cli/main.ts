@@ -20,14 +20,14 @@ import {
 declare const __WEFTCUT_VERSION__: string | undefined
 const SHIM_VERSION = typeof __WEFTCUT_VERSION__ === 'string' ? __WEFTCUT_VERSION__ : '0.0.0-dev'
 
-/// weftcut-mcp — the WeftCut MCP connection shim.
+/// weftcut-mcp — the KXVN Cut MCP connection shim.
 ///
 /// Default mode (no args) is an MCP server on stdio that bridges to the
 /// running app's streamable-HTTP endpoint; the subcommands are the
 /// terminal-facing connection helpers. Exit codes: 0 ok, 2 usage, 3 the app
 /// is not reachable (info / list-tools).
 
-const HELP = `weftcut-mcp — WeftCut MCP connection shim
+const HELP = `weftcut-mcp — KXVN Cut MCP connection shim
 
 usage:
   weftcut-mcp                 MCP server on stdio (what client configs run)
@@ -94,7 +94,7 @@ async function withBridge<T>(
 async function runInfo(userDataDir: string): Promise<void> {
   const auth = readAuth(userDataDir)
   console.log(`userData:  ${userDataDir}`)
-  console.log(`auth file: ${authFilePath(userDataDir)}${auth ? '' : ' (missing — launch WeftCut once)'}`)
+  console.log(`auth file: ${authFilePath(userDataDir)}${auth ? '' : ' (missing — launch KXVN Cut once)'}`)
   if (!auth) {
     console.log('running:   no')
     process.exitCode = 3
@@ -116,8 +116,8 @@ async function runListTools(userDataDir: string): Promise<void> {
   if (!listing) {
     console.error(
       auth
-        ? `WeftCut is not running (nothing answering at ${endpointUrl(auth)}). Launch the app and retry.`
-        : `WeftCut has never been launched on this machine (no mcp_auth.json under ${userDataDir}).`,
+        ? `KXVN Cut is not running (nothing answering at ${endpointUrl(auth)}). Launch the app and retry.`
+        : `KXVN Cut has never been launched on this machine (no mcp_auth.json under ${userDataDir}).`,
     )
     process.exitCode = 3
     return

@@ -17,7 +17,7 @@ const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/
 /// no `path`), and the install prompt names it to the user's agent. Renaming
 /// `skills/weftcut/` has to fail the build rather than ship a panel pointing at
 /// a folder nobody staged.
-export const REQUIRED_SKILL = 'weftcut'
+export const REQUIRED_SKILL = 'kxvn-cut'
 
 /// Docs copied verbatim into the required skill folder. A skill references
 /// these by bare filename ("read motif-authoring.md next to this file"), so the

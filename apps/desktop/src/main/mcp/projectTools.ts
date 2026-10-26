@@ -25,7 +25,7 @@ export async function runProjectTool(
 ): Promise<ServerResult> {
   const p = mcpDef(name).parseDedicated!(args)
   if (host.projects.shuttingDown()) {
-    return toolErrorResult({ code: 'invalid_request', message: 'WeftCut is quitting, so no project can be opened now. Nothing was changed.', data: { error: 'AppQuitting' } })
+    return toolErrorResult({ code: 'invalid_request', message: 'KXVN Cut is quitting, so no project can be opened now. Nothing was changed.', data: { error: 'AppQuitting' } })
   }
   if (name === 'open_project') {
     const dir = p.path as string
@@ -36,7 +36,7 @@ export async function runProjectTool(
   if (parent === null) {
     return toolErrorResult({
       code: 'invalid_params',
-      message: 'create_project needs parent_folder: no project has been created in WeftCut yet, so there is no default folder. Ask the user where the project should go. Nothing was changed.',
+      message: 'create_project needs parent_folder: no project has been created in KXVN Cut yet, so there is no default folder. Ask the user where the project should go. Nothing was changed.',
       data: { field: 'parent_folder' },
     })
   }
@@ -59,7 +59,7 @@ function joinFolder(parent: string, name: string): string {
 /** Whether a caller can fix the refusal by changing its arguments. A wrong or
  *  taken path is `invalid_params`: send another. A folder that IS the project
  *  asked for but cannot be opened here — unreadable, invalid, from a newer
- *  WeftCut — is `invalid_request`: no argument fixes it, and a client that
+ *  KXVN Cut — is `invalid_request`: no argument fixes it, and a client that
  *  retries on `invalid_params` must not loop on it. Exhaustive, so a new
  *  variant cannot land unclassified. */
 const WORKSPACE_REFUSAL_CODE: Record<WorkspaceError['error'], McpErrorCode> = {
@@ -82,12 +82,12 @@ function refusal(e: unknown, dir: string): ServerResult {
 export function workspaceProblem(err: WorkspaceError, dir: string): string {
   switch (err.error) {
     case 'ProjectFolderMissing': return `${dir} does not exist. read_project { view: "session" } lists recent_projects; otherwise ask the user where the project is.`
-    case 'NotProjectFolder': return `${dir} is not a WeftCut project folder (it holds no project.json). Pass the folder that holds project.json, or create_project for a new one.`
-    case 'ProjectSchemaUnreadable': return `${dir}/project.json is not a project file this WeftCut recognises (no schema_version).`
-    case 'ProjectSchemaTooNew': return `${dir} was saved by a newer WeftCut (schema ${err.found}; this build reads up to ${err.supported}). Opening it here could drop what the newer version wrote; the user needs a WeftCut that reads schema ${err.found}.`
+    case 'NotProjectFolder': return `${dir} is not a KXVN Cut project folder (it holds no project.json). Pass the folder that holds project.json, or create_project for a new one.`
+    case 'ProjectSchemaUnreadable': return `${dir}/project.json is not a project file this KXVN Cut recognises (no schema_version).`
+    case 'ProjectSchemaTooNew': return `${dir} was saved by a newer KXVN Cut (schema ${err.found}; this build reads up to ${err.supported}). Opening it here could drop what the newer version wrote; the user needs a KXVN Cut that reads schema ${err.found}.`
     case 'ProjectFileUnreadable': return `${dir}/project.json could not be read: ${err.detail}`
     case 'ProjectInvalid': return `${dir}/project.json loaded but failed validation: ${err.detail}`
-    case 'ProjectFolderExists': return `${dir} already exists and is never overwritten. Pick another name, or open_project it if it is a WeftCut project.`
+    case 'ProjectFolderExists': return `${dir} already exists and is never overwritten. Pick another name, or open_project it if it is a KXVN Cut project.`
     case 'ProjectNameRequired': return 'name is required.'
     case 'InvalidCanvasPreset': return 'width, height and fps must all be non-zero.'
   }

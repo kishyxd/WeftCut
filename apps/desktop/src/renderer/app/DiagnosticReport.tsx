@@ -13,7 +13,7 @@ export function diagnosticIssueUrl(summary: DiagnosticSummary): string {
     template: 'bug_report.yml',
     title: previous ? '[Bug] App did not exit normally' : '[Bug] ',
     version: summary.environment,
-    ...(previous ? { what: `Previous session / 上次运行: ${previous.startedAt}, WeftCut ${previous.version}, ${previous.reason}\n\nPlease describe what you were doing. / 请补充当时的操作。` } : {}),
+    ...(previous ? { what: `Previous session / 上次运行: ${previous.startedAt}, KXVN Cut ${previous.version}, ${previous.reason}\n\nPlease describe what you were doing. / 请补充当时的操作。` } : {}),
     logs: '<!-- Review the exported ZIP, then drag it here to attach. This issue is public. / 检查导出的 ZIP 后拖到此处上传；此 issue 为公开内容。 -->',
   })}`
 }

@@ -297,7 +297,7 @@ export class Bridge {
 
 export class BridgeDownError extends Error {
   constructor() {
-    super('WeftCut is not reachable')
+    super('KXVN Cut is not reachable')
   }
 }
 
@@ -309,6 +309,6 @@ export class BridgeTimeoutError extends Error {
     readonly timeoutMs: number,
     readonly total: boolean,
   ) {
-    super(`WeftCut did not answer ${method} within ${timeoutMs} ms`)
+    super(`KXVN Cut did not answer ${method} within ${timeoutMs} ms`)
   }
 }

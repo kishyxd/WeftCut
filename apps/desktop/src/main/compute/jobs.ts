@@ -18,7 +18,7 @@ export type CancelReason = 'caller' | 'user' | 'native'
 export class ComputeCancelledError extends Error {
   constructor(readonly jobId: string, readonly reason: CancelReason) {
     super(reason === 'user'
-      ? 'Cancelled in WeftCut by the user. Nothing was computed; calling again starts a new job.'
+      ? 'Cancelled in KXVN Cut by the user. Nothing was computed; calling again starts a new job.'
       : 'Cancelled. Nothing was computed; calling again starts a new job.')
     this.name = 'ComputeCancelledError'
   }

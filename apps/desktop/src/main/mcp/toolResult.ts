@@ -38,7 +38,7 @@ export class UnknownToolError extends Error {
  *  only the message — and so does the rule: open or create only a project the
  *  user asked for. */
 export const NO_PROJECT_OPEN_MESSAGE =
-  'No project is open in WeftCut — the app is on its start screen. If the user asked for a particular project, open it with open_project (read_project { view: "session" } lists recent_projects) or make it with create_project; otherwise ask the user which project to work in. Nothing was changed.'
+  'No project is open in KXVN Cut — the app is on its start screen. If the user asked for a particular project, open it with open_project (read_project { view: "session" } lists recent_projects) or make it with create_project; otherwise ask the user which project to work in. Nothing was changed.'
 
 export function noProjectOpenResult(): ServerResult {
   return toolErrorResult({ code: 'invalid_request', message: NO_PROJECT_OPEN_MESSAGE, data: { error: 'NoProjectOpen' } })

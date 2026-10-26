@@ -460,7 +460,7 @@ export function AgentSection() {
           {t(`connect.skill_fault.${skills.fault}`)}
         </p>
         {/* Offered for every fault, not just the transient-looking ones: each
-            is cleared by something outside WeftCut (a freed disk, a restored
+            is cleared by something outside KXVN Cut (a freed disk, a restored
             quarantine, a repaired install), and only re-running the install
             can tell whether that has happened yet. */}
         <Button

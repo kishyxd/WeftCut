@@ -26,7 +26,7 @@ export type SkillsInstall =
 /// The skill folder every layer above this one names literally: the panel
 /// concatenates it onto `dir`, and `scripts/build-skills-lib.mjs` asserts the
 /// build staged it under the same name.
-const REQUIRED_SKILL = 'weftcut'
+const REQUIRED_SKILL = 'kxvn-cut'
 
 /// A destination that holds the required skill is one a user can install from;
 /// an empty or half-written `skills/` is not, however successfully it was

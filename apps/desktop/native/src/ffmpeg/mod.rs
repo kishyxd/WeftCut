@@ -219,7 +219,7 @@ pub async fn bootstrap() -> Result<BootstrapStatus> {
             // shadow is still a machine with no working ffmpeg. Fail with an
             // actionable hint instead. Windows/macOS keep the fallback.
             if cfg!(target_os = "linux") {
-                let msg = "ffmpeg not found. On Linux WeftCut ships a version-pinned \
+                let msg = "ffmpeg not found. On Linux KXVN Cut ships a version-pinned \
                      ffmpeg with the app; in a dev checkout run `npm run ffmpeg:fetch`, \
                      or install your distro's package (e.g. `apt install ffmpeg`)."
                     .to_string();

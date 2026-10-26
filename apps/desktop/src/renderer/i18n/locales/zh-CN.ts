@@ -75,7 +75,7 @@ const zhCN: Resources = {
     "decode_heading": "标准引擎预览解码",
     "encode_heading": "FFmpeg 导出编码",
     "decode_scope": "预览测试覆盖 8-bit H.264、HEVC 和 VP9。Linux 预览通过系统内存回读传输画面，导出解码当前使用软件。",
-    "memory_scope": "整卡用量包含其他应用，与 WeftCut 的资源用量分别统计。",
+    "memory_scope": "整卡用量包含其他应用，与 KXVN Cut 的资源用量分别统计。",
     "sampled_at": "上次检测：{{time}}",
     "stale": "当前无法获取新数据，正在显示上次硬件检测结果。",
     "probe_details": "技术详情",
@@ -275,9 +275,9 @@ const zhCN: Resources = {
     conversion_note:'仅转换所选范围，范围外保持端点位置。可编辑曲线生成稀疏关键帧，不变的轴保持静态；按帧烘焙保留定期采样的关键帧，必要时继续加点。误差在帧、四分之一帧和关键边界实测，不保证连续时间精度。瞬间位置跳变会拒绝转换。',
   },
   app: {
-    title: "WeftCut",
+    title: "KXVN Cut",
     core_status: "核心：{{status}}",
-    window_title: "WeftCut — {{name}}",
+    window_title: "KXVN Cut — {{name}}",
   },
   splash: {
     starting: "正在启动系统检查…",
@@ -371,7 +371,7 @@ const zhCN: Resources = {
     subtitle: "选择要打开的项目，或新建一个。",
     new_project: "新建项目",
     open_project: "打开项目…",
-    open_dialog_title: "打开 WeftCut 项目文件夹",
+    open_dialog_title: "打开 KXVN Cut 项目文件夹",
     recent_heading: "最近",
     recent_loading: "加载中…",
     recent_empty: "暂无最近项目。",
@@ -381,13 +381,13 @@ const zhCN: Resources = {
     recent_open_failed: "无法打开项目：{{detail}}",
     recents_load_failed: "无法读取最近项目列表：{{detail}}",
     not_project_folder:
-      "此文件夹不是 WeftCut 项目。请选择由 WeftCut 创建的文件夹，或新建项目。",
+      "此文件夹不是 KXVN Cut 项目。请选择由 KXVN Cut 创建的文件夹，或新建项目。",
     project_folder_missing:
       "找不到此项目的文件夹——它可能已被移动、重命名或删除，已自动从最近列表中移除。",
-    // 只陈述版本不一致，不建议"升级 WeftCut"——最常触发它的其实是本仓库另一个
+    // 只陈述版本不一致，不建议"升级 KXVN Cut"——最常触发它的其实是本仓库另一个
     // 构建留下的项目文件，那种情况下升级并不能解决问题。
     project_schema_too_new:
-      "此项目由另一个 WeftCut 构建写入（项目格式 v{{found}}），当前构建读取 v{{supported}}。",
+      "此项目由另一个 KXVN Cut 构建写入（项目格式 v{{found}}），当前构建读取 v{{supported}}。",
     project_schema_unreadable:
       "此文件夹中的 project.json 未声明当前构建可识别的项目格式版本，无法打开。",
     project_file_unreadable: "无法读取此项目的 project.json：{{detail}}",
@@ -492,7 +492,7 @@ const zhCN: Resources = {
   diagnostics: {
     title: '报告问题',
     previous_title: '上次运行未正常退出',
-    previous_description: 'WeftCut 检测到上次运行未完成退出，或有进程发生故障。强制结束或断电也可能导致这种情况。你可以通过 GitHub 报告问题，帮助我们排查。',
+    previous_description: 'KXVN Cut 检测到上次运行未完成退出，或有进程发生故障。强制结束或断电也可能导致这种情况。你可以通过 GitHub 报告问题，帮助我们排查。',
     description: '导出诊断 ZIP，检查内容后将它作为附件上传到 GitHub issue。打开 GitHub 只会准备草稿，由你决定是否提交。',
     privacy: '包含应用和系统版本、CPU / 内存 / GPU 信息、近期资源采样和脱敏日志，不包含项目文件或媒体。错误文字中仍可能存在私人信息。GitHub issue 及附件是公开的，应用不会自动上传。',
     export: '导出诊断包…',
@@ -506,7 +506,7 @@ const zhCN: Resources = {
   help: {
     check_updates: "检查更新…",
     report_issue: "报告问题…",
-    about: "关于 WeftCut",
+    about: "关于 KXVN Cut",
     version: "版本 {{version}}",
     developed_by: "作者:UncleChair",
     license_mit: "证书:本体采用 <mit>MIT</mit> 许可证。",
@@ -979,8 +979,8 @@ const zhCN: Resources = {
     close: "关闭",
   },
   dialogs: {
-    save_title: "保存 WeftCut 项目",
-    project_filter: "WeftCut 项目",
+    save_title: "保存 KXVN Cut 项目",
+    project_filter: "KXVN Cut 项目",
     save_default_name: "未命名.vproj",
     import_title: "导入素材",
     media_filter: "媒体文件",
@@ -1699,7 +1699,7 @@ const zhCN: Resources = {
     reveal_mac: "在 Finder 中显示",
     reveal_linux: "在文件夹中显示",
     reveal_hint: "打开导出文件所在的文件夹。",
-    render_play_title: "WeftCut — 渲染并播放",
+    render_play_title: "KXVN Cut — 渲染并播放",
     notify_done_title: "导出完成",
     notify_done_body: "已保存到 {{path}}",
     notify_failed_title: "导出失败",
@@ -1853,12 +1853,12 @@ const zhCN: Resources = {
     },
     agent_skill_unavailable: {
       title: "缺少代理 Skill",
-      body: "用于教会外部代理操作 WeftCut 的 Skill 没能安装，因此没有任何内容可以交给你的代理。重新安装应用可恢复。",
+      body: "用于教会外部代理操作 KXVN Cut 的 Skill 没能安装，因此没有任何内容可以交给你的代理。重新安装应用可恢复。",
       action: "打开代理设置",
     },
     agent_skill_stale: {
       title: "代理 Skill 未更新",
-      body: "WeftCut 无法刷新自带的代理 Skill，当前提供的是旧版本留下的副本。使用它的代理可能会调用本版本已经没有的工具。",
+      body: "KXVN Cut 无法刷新自带的代理 Skill，当前提供的是旧版本留下的副本。使用它的代理可能会调用本版本已经没有的工具。",
       action: "打开代理设置",
     },
   },
@@ -1879,7 +1879,7 @@ const zhCN: Resources = {
     dismiss: "知道了",
   },
   connect: {
-    blurb: "将外部 Agent 接入 WeftCut 的本地 MCP 服务，让它直接读取和编辑你的项目。",
+    blurb: "将外部 Agent 接入 KXVN Cut 的本地 MCP 服务，让它直接读取和编辑你的项目。",
     starting: "MCP 服务正在启动…",
     copy: "复制配置",
     copied: "已复制！",
@@ -1891,21 +1891,21 @@ const zhCN: Resources = {
     manual_heading: "证明你是人类",
     skill_path_heading: "Skill 文件夹位置",
     skill_path_unavailable: "没有可打开的 Skill 文件夹 —— 见上方「交给 Agent 自行设置」。",
-    skill_stale: "当前显示的是此前启动留下的副本，它可能比当前版本的 WeftCut 更旧。",
+    skill_stale: "当前显示的是此前启动留下的副本，它可能比当前版本的 KXVN Cut 更旧。",
     skill_retry: "重试",
     skill_retrying: "正在安装…",
     skill_fault: {
       not_built: "此开发构建尚未生成 Skill。执行 “npm run build:skills” 后重启。",
-      bundle_missing: "本次安装的 WeftCut 没有附带 Skill。重新安装应用可恢复。",
-      incomplete: "WeftCut 附带的 Skill 不完整。重新安装应用可恢复。",
+      bundle_missing: "本次安装的 KXVN Cut 没有附带 Skill。重新安装应用可恢复。",
+      incomplete: "KXVN Cut 附带的 Skill 不完整。重新安装应用可恢复。",
       copy_failed:
-        "WeftCut 无法把 Skill 写入其用户数据目录。请检查磁盘剩余空间和该目录的权限，然后重启。",
+        "KXVN Cut 无法把 Skill 写入其用户数据目录。请检查磁盘剩余空间和该目录的权限，然后重启。",
     },
     copy_path: "复制路径",
     browse: "浏览…",
     open_location: "打开文件位置",
     agent_prompt: [
-      "请为我配置 WeftCut MCP 服务，直接完成配置修改，不要只告诉我操作步骤。",
+      "请为我配置 KXVN Cut MCP 服务，直接完成配置修改，不要只告诉我操作步骤。",
       "",
       "连接信息：",
       "- 服务名：weftcut",
@@ -1922,7 +1922,7 @@ const zhCN: Resources = {
       "- 说明修改了哪个文件，以及配置是否有效。",
     ].join("\n"),
     agent_prompt_stdio: [
-      "请为我配置 WeftCut MCP 服务，直接完成配置修改，不要只告诉我操作步骤。",
+      "请为我配置 KXVN Cut MCP 服务，直接完成配置修改，不要只告诉我操作步骤。",
       "",
       "连接信息：",
       "- 服务名：weftcut",
@@ -1942,11 +1942,11 @@ const zhCN: Resources = {
     // 设置提示词的后半段，接在对应的 MCP 段之后。它自成一段，这样在没有
     // Skill 文件夹、这半段被略去时，整条消息依然读得通。
     agent_prompt_skill: [
-      "然后安装 WeftCut Skill —— 随应用附带的使用指导。",
+      "然后安装 KXVN Cut Skill —— 随应用附带的使用指导。",
       "",
       '- 把文件夹 "{{folder}}" 复制到你自己的 skills 目录，文件夹名保持 weftcut；Claude Code 对应 ~/.claude/skills/weftcut。',
-      "- 覆盖那里已有的旧副本，它属于更早版本的 WeftCut。",
-      "- 装好后先读一遍该 Skill，之后处理 WeftCut 项目时按它执行。",
+      "- 覆盖那里已有的旧副本，它属于更早版本的 KXVN Cut。",
+      "- 装好后先读一遍该 Skill，之后处理 KXVN Cut 项目时按它执行。",
       "- 说明最终安装到了哪里。",
     ].join("\n"),
     reveal: "显示令牌",
@@ -1959,7 +1959,7 @@ const zhCN: Resources = {
       "MCP请求必须携带令牌，服务仅绑定本地使用。令牌存放在mcp_auth.json中，若泄露请使用「刷新令牌」轮换。",
     snippets_heading: "客户端配置片段",
     stdio_note:
-      "此配置长期有效：应用重启、端口或令牌变更后均无需修改。应用未启动时 Agent 也可连接，并能直接唤起 WeftCut。",
+      "此配置长期有效：应用重启、端口或令牌变更后均无需修改。应用未启动时 Agent 也可连接，并能直接唤起 KXVN Cut。",
     http_heading: "HTTP 直连（高级）",
     http_note:
       "直接连接运行中的应用。应用关闭后连接即中断，端口或令牌变更后配置随之失效。除非客户端不支持 stdio，否则建议优先使用上方的配置。",
@@ -2000,7 +2000,7 @@ const zhCN: Resources = {
       '4k-wide': '4K · 宽松',
     },
     default_text_font: "文字默认字体",
-    default_text_font_hint: "使用文字时的默认字体。请通过操作系统安装字体，然后重启 WeftCut 更新字体列表。",
+    default_text_font_hint: "使用文字时的默认字体。请通过操作系统安装字体，然后重启 KXVN Cut 更新字体列表。",
     heading: "设置",
     cat_general: "通用",
     cat_project: "项目",
@@ -2131,7 +2131,7 @@ const zhCN: Resources = {
       "轻量引擎不支持该片段的格式，且未安装标准引擎。",
     data_location_heading: "数据位置",
     data_location_blurb:
-      "WeftCut 存放大型托管文件的位置，你的 Motifs、部分缓存以及下载的资源都会存放于此。",
+      "KXVN Cut 存放大型托管文件的位置，你的 Motifs、部分缓存以及下载的资源都会存放于此。",
     data_location_current_label: "当前文件夹",
     data_location_fallback: "回退——你所选的文件夹不可用，已改用默认位置。",
     data_location_change: "更改…",
@@ -2142,14 +2142,14 @@ const zhCN: Resources = {
     data_location_phase_done: "正在收尾…",
     data_location_progress_count: "{{copied}} / {{total}} 个文件",
     data_location_success_copy:
-      "数据已复制到 {{path}}。重启 WeftCut 即可开始使用新位置。",
+      "数据已复制到 {{path}}。重启 KXVN Cut 即可开始使用新位置。",
     data_location_success_adopt:
-      "WeftCut 将使用 {{path}} 处已有的数据文件夹。重启以生效。",
+      "KXVN Cut 将使用 {{path}} 处已有的数据文件夹。重启以生效。",
     data_location_restart: "重启以生效",
     data_location_error: "无法更改数据文件夹：{{message}} 数据保持不变。",
     data_location_cleanup_title: "删除旧数据副本？",
     data_location_cleanup_body:
-      "WeftCut 现已运行于新位置。{{path}} 处的旧副本已不再使用——可删除以释放空间，或保留作为备份。",
+      "KXVN Cut 现已运行于新位置。{{path}} 处的旧副本已不再使用——可删除以释放空间，或保留作为备份。",
     data_location_cleanup_keep: "保留",
     data_location_cleanup_delete: "删除旧副本",
     data_location_cleanup_deleting: "正在删除…",

@@ -38,7 +38,7 @@ describe('initialize instructions', () => {
     const client = new Client({ name: 'instructions-test', version: '0' })
     await Promise.all([server.connect(serverT), client.connect(clientT)])
     expect(client.getInstructions()).toBe(MCP_INSTRUCTIONS)
-    expect(client.getServerVersion()).toMatchObject({ name: 'weftcut', version: '1.2.3' })
+    expect(client.getServerVersion()).toMatchObject({ name: 'kxvn', version: '1.2.3' })
     expect(client.getServerCapabilities()).toMatchObject({ tools: {}, resources: {}, prompts: {} })
   })
 })

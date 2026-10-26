@@ -424,7 +424,7 @@ function isElevatedWindows(): Promise<boolean> {
   })
 }
 
-/// One-shot startup notice: when WeftCut runs elevated on Windows, Windows UIPI
+/// One-shot startup notice: when KXVN Cut runs elevated on Windows, Windows UIPI
 /// blocks file drag-drop from the (Medium-integrity) Explorer into this
 /// (High-integrity) process — the drag never reaches the renderer, so drop-import
 /// silently dies. Surface it instead of leaving a confusing no-op. The dialog is
@@ -442,8 +442,8 @@ async function warnIfElevatedWindows(win: BrowserWindow): Promise<void> {
     title: zh ? '正在以管理员身份运行' : 'Running as administrator',
     message: zh ? '拖放导入已被禁用' : 'Drag-and-drop import is disabled',
     detail: zh
-      ? 'Windows 会阻止把文件从资源管理器拖放到以管理员身份运行的应用。要启用拖放,请以普通方式(不要"以管理员身份运行")重新启动 WeftCut。你仍可使用"导入媒体…"按钮导入。'
-      : 'Windows blocks dragging files from File Explorer into an app that runs as administrator. To enable drag-and-drop, relaunch WeftCut normally (not "Run as administrator"). You can still import with the "Import media…" button.',
+      ? 'Windows 会阻止把文件从资源管理器拖放到以管理员身份运行的应用。要启用拖放,请以普通方式(不要"以管理员身份运行")重新启动 KXVN Cut。你仍可使用"导入媒体…"按钮导入。'
+      : 'Windows blocks dragging files from File Explorer into an app that runs as administrator. To enable drag-and-drop, relaunch KXVN Cut normally (not "Run as administrator"). You can still import with the "Import media…" button.',
   })
 }
 
@@ -459,7 +459,7 @@ app.whenReady().then(async () => {
   // packaged identity on purpose (one taskbar grouping across dev and prod).
   app.setAppUserModelId(WINDOWS_APP_USER_MODEL_ID)
 
-  // WeftCut's UI is dark-only (base.css pins `color-scheme: dark`), so declare
+  // KXVN Cut's UI is dark-only (base.css pins `color-scheme: dark`), so declare
   // that to the OS instead of inheriting the system appearance. macOS draws the
   // traffic lights through the WINDOW's appearance, and its light-chrome
   // INACTIVE state is a dark grey disc meant for a light titlebar — invisible
@@ -607,7 +607,7 @@ app.whenReady().then(async () => {
         defaultId: 0,
         cancelId: 1,
         title: zh ? '数据文件夹不可用' : 'Data folder unavailable',
-        message: zh ? 'WeftCut 无法访问已配置的数据文件夹' : "WeftCut can't reach its data folder",
+        message: zh ? 'KXVN Cut 无法访问已配置的数据文件夹' : "KXVN Cut can't reach its data folder",
         detail: zh
           ? `路径:\n${unavailableRoot}\n\n该磁盘可能未挂载、被删除或权限被撤销。请重新选择一个位置,或退出。`
           : `Path:\n${unavailableRoot}\n\nThe drive may be unmounted, deleted, or its permission revoked. Choose a new location, or quit.`,
@@ -1227,7 +1227,7 @@ app.whenReady().then(async () => {
     console.log(
       `[mcp] stdio connect: ${JSON.stringify({
         mcpServers: {
-          weftcut: stdioConnectConfig({
+          kxvn: stdioConnectConfig({
             execPath: process.execPath,
             appImage: process.env.APPIMAGE,
             shimPath,
@@ -1242,7 +1242,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('reset_mcp_token', () => mcpHost.resetToken())
   // Re-run the startup refresh on demand, from the Agent panel. Every fault
   // that can reach a packaged user is one an outside actor can clear without
-  // touching WeftCut — a full disk emptied, an antivirus quarantine undone, a
+  // touching KXVN Cut — a full disk emptied, an antivirus quarantine undone, a
   // file handle released, a repaired install — and a recovery that cost an app
   // restart would be one the user has no reason to trust worked.
   ipcMain.handle('reinstall_skills', () => {
@@ -2786,7 +2786,7 @@ app.whenReady().then(async () => {
 // quit decision is quitIfLastUserWindowClosed (windows.ts), which explains why
 // this event cannot be trusted; a double quit is absorbed by quitFlushed below.
 // No platform test, for the same reason the gate carries none — a windowless
-// WeftCut is never a state to leave running.
+// KXVN Cut is never a state to leave running.
 app.on('window-all-closed', () => app.quit())
 
 // Flush the TS actor's debounced autosave before the process exits — an edit made

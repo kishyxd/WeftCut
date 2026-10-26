@@ -162,7 +162,7 @@ export class DiagnosticsStore {
     this.flush()
     if (!this.writable) throw new Error('Diagnostic storage is unavailable')
     const files: Record<string, Uint8Array> = {
-      'README.txt': strToU8('WeftCut diagnostics\nReview these files before attaching this ZIP to a PUBLIC GitHub issue.\nNo project files, media, settings, credential stores or memory dumps are read.\nKnown paths, URLs and credential patterns are redacted, but free-form errors can still contain private text.\nLogs are bounded and may be incomplete after abrupt termination.\n'),
+      'README.txt': strToU8('KXVN Cut diagnostics\nReview these files before attaching this ZIP to a PUBLIC GitHub issue.\nNo project files, media, settings, credential stores or memory dumps are read.\nKnown paths, URLs and credential patterns are redacted, but free-form errors can still contain private text.\nLogs are bounded and may be incomplete after abrupt termination.\n'),
       'environment.json': strToU8(JSON.stringify(environment, null, 2)),
     }
     // A still-pending notice can precede a newer, already acknowledged failure
