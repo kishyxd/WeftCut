@@ -1,0 +1,159 @@
+name: kxvn-windows-package
+
+# The KXVN Cut build. Same toolchain and same composite action the upstream
+# CI uses, minus the e2e suite, the nightly matrix, the cargo test job and
+# the GitHub release publisher (which is locked to the upstream repo anyway).
+# One job, one artifact: the Windows x64 NSIS installer.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [kxvn-rebrand]
+    paths:
+      - 'apps/desktop/**'
+      - '.github/actions/rust-artifacts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.nvmrc'
+      - 'rust-toolchain.toml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kxvn-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: KXVN Cut - the Windows x64 installer
+    runs-on: windows-latest
+    # The Rust addon builds in release mode: a cold build of the whole
+    # workspace is the long pole (15-25 min), the rest is minutes.
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: apps/desktop
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      # npm ci at the workspace ROOT: the root package-lock.json covers all
+      # workspaces including apps/desktop. Running it at apps/desktop would
+      # fail - there is no apps/desktop/package-lock.json.
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Read pinned Electron version
+        id: electron-version
+        shell: bash
+        run: echo "v=$(node -p "require('./package.json').devDependencies.electron")" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Electron download cache
+        id: cache-electron
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/electron
+          key: electron-${{ runner.os }}-${{ steps.electron-version.outputs.v }}
+
+      - name: Install Electron binary
+        env:
+          electron_config_cache: ${{ github.workspace }}/.cache/electron
+        run: npm run electron:install
+
+      - name: Save Electron download cache
+        if: steps.cache-electron.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/electron
+          key: ${{ steps.cache-electron.outputs.cache-primary-key }}
+
+      - name: Restore ffmpeg cache
+        id: cache-ffmpeg
+        uses: actions/cache/restore@v6
+        with:
+          path: apps/desktop/resources/ffmpeg
+          key: ffmpeg-${{ runner.os }}-${{ hashFiles('apps/desktop/scripts/fetch-ffmpeg.mjs') }}
+
+      - name: Fetch ffmpeg
+        run: npm run ffmpeg:fetch
+
+      - name: Save ffmpeg cache
+        if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: apps/desktop/resources/ffmpeg
+          key: ${{ steps.cache-ffmpeg.outputs.cache-primary-key }}
+
+      - name: Restore ffmpeg-lgpl cache
+        id: cache-ffmpeg-lgpl
+        uses: actions/cache/restore@v6
+        with:
+          path: apps/desktop/resources/ffmpeg-lgpl
+          key: ffmpeg-lgpl-${{ runner.os }}-${{ hashFiles('apps/desktop/scripts/fetch-ffmpeg-lgpl.mjs') }}
+
+      - name: Fetch LGPL ffmpeg (native-decode)
+        run: npm run ffmpeg:fetch-lgpl
+
+      - name: Save ffmpeg-lgpl cache
+        if: steps.cache-ffmpeg-lgpl.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: apps/desktop/resources/ffmpeg-lgpl
+          key: ${{ steps.cache-ffmpeg-lgpl.outputs.cache-primary-key }}
+
+      # Both napi addons, the conformance analyzer bin and the generated eval
+      # wasm - restored from a cache keyed on the Rust sources, or built here
+      # and saved. Must stay AFTER the LGPL fetch: the decode addon's build
+      # reads FFMPEG_DIR from resources/ffmpeg-lgpl/<os>.
+      - uses: ./.github/actions/rust-artifacts
+
+      - name: Put LGPL DLLs on PATH (native-decode runtime)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: cygpath -w "$PWD/resources/ffmpeg-lgpl/win/bin" >> "$GITHUB_PATH"
+
+      # The rebrand changed the Rust tool descriptions, so the committed
+      # catalog snapshot is stale. `npm run build` opens with
+      # mcp:catalog:check, which regenerates the snapshot and fails the build
+      # when the result differs from what is committed. Regenerate and commit
+      # it here, so that check finds a clean tree.
+      - name: Refresh the MCP catalog snapshot
+        shell: bash
+        run: |
+          node scripts/snapshot-mcp-catalog.mjs
+          cd "$GITHUB_WORKSPACE"
+          git -c user.name='KXVN Cut CI' -c user.email='ci@kxvn.io' \
+            add -f apps/desktop/fixtures/mcp/rust-catalog-snapshot.json
+          git -c user.name='KXVN Cut CI' -c user.email='ci@kxvn.io' \
+            commit -q -m 'chore: refresh the MCP catalog snapshot' || true
+          git --no-pager diff --stat HEAD -- apps/desktop/fixtures/mcp/rust-catalog-snapshot.json
+
+      - name: Typecheck (tsc -b)
+        run: npm run typecheck
+
+      - name: Build the app
+        run: npm run build
+
+      - name: Package (unsigned)
+        run: npx electron-builder --publish never
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: kxvn-cut-windows-x64
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/latest*.yml
